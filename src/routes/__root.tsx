@@ -8,8 +8,10 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { CalendarCheck, FileText, Mail, Sparkles } from "lucide-react";
 
 import appCss from "../styles.css?url";
+import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -77,19 +79,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "FlowDesk — AI Productivity Workspace" },
+      {
+        name: "description",
+        content:
+          "Write emails, summarize meetings and plan your week with AI. No login required.",
+      },
+      { property: "og:title", content: "FlowDesk — AI Productivity Workspace" },
+      {
+        property: "og:description",
+        content:
+          "Write emails, summarize meetings and plan your week with AI. No login required.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -114,13 +125,51 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const NAV = [
+  { to: "/", label: "Email", icon: Mail },
+  { to: "/notes", label: "Meetings", icon: FileText },
+  { to: "/tasks", label: "Planner", icon: CalendarCheck },
+] as const;
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="gradient-hero flex size-8 items-center justify-center rounded-lg text-primary-foreground">
+                <Sparkles className="size-4" />
+              </span>
+              <span className="font-display text-lg font-semibold">FlowDesk</span>
+            </Link>
+            <nav className="flex items-center gap-1 rounded-full bg-muted p-1">
+              {NAV.map(({ to, label, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  activeOptions={{ exact: to === "/" }}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                  activeProps={{
+                    className:
+                      "bg-card text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:text-foreground",
+                  }}
+                >
+                  <Icon className="size-4" />
+                  <span className="hidden sm:inline">{label}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
+        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </main>
+      </div>
+      <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
 }
